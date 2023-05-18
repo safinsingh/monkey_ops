@@ -1,5 +1,4 @@
-from . import app, socketio
-
+from .. import app, socketio
 
 @app.route("/")
 def home():
