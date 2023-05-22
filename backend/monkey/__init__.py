@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-stats = Stats()
+monitor = Stats()
 socketio = SocketIO(app, cors_allowed_origins="*")
 db = SQLAlchemy(app)
 
@@ -78,3 +78,10 @@ def login():
 def before_first_request():
     
     db.create_all()
+
+@socketio.on("connect")
+def stats():
+    print("connected")
+    while True:
+        socketio.emit("updateStats", monitor.get())
+        socketio.sleep(3)
