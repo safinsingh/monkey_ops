@@ -1,4 +1,4 @@
-from monkey import app, stats
+from monkey import app, stats, db
 
 if __name__ == "__main__":
     stats.monitor()
