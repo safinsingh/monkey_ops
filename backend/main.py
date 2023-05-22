@@ -1,5 +1,5 @@
-from monkey import app, stats
+from monkey import app, monitor
 
 if __name__ == "__main__":
-    stats.monitor()
+    monitor.monitor()
     app.run(debug=True, port=8080)

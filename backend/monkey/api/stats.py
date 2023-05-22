@@ -2,6 +2,7 @@ from ..monitor import running_container_stats
 from time import sleep
 import threading
 
+
 class Stats:
     def __init__(self):
         self.mux = threading.Lock()
