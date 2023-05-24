@@ -1,7 +1,6 @@
 from .api.stats import Stats
 from flask_socketio import SocketIO
-from flask import Flask, request
-from flask_login import LoginManager, UserMixin, login_user
+from flask import Flask, request, session
 from flask_sqlalchemy  import SQLAlchemy
 import bcrypt
 from sqlalchemy.exc import IntegrityError
@@ -10,21 +9,17 @@ from sqlalchemy import UniqueConstraint
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-
-login_manager = LoginManager()
-login_manager.init_app(app)
 monitor = Stats()
 socketio = SocketIO(app, cors_allowed_origins="*")
 db = SQLAlchemy(app)
 
-class User(UserMixin, db.Model):
+class User(db.Model):
   __tablename__ = "user"
+  __table_args__ = (UniqueConstraint('username'),)
 
   id = db.Column(db.Integer, primary_key=True)
   username = db.Column(db.String(64), unique=True)
   password = db.Column(db.String(128))
-
-  __table_args__ = (UniqueConstraint('username'),)
 
   def __init__(self, username, password):
     self.username = username
@@ -36,19 +31,9 @@ class User(UserMixin, db.Model):
     else:
       return False
   
-  def create(self):
-    try:
-        db.session.add(self)
-        db.session.commit()
-        return self
-    except IntegrityError:
-        db.session.remove()
-        return None
-
-def init_users():
-  new_user = User("Test", "Test")
-  new_user.create()
-  print(new_user)
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return db.session.query(User).get(user_id)
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -57,10 +42,12 @@ def signup():
 
   try:
     new_user = User(username, password)
-    new_user.create()
-    return f"Used ID {new_user.id} created"
-  except IntegrityError:
-    return "Username is taken"
+    db.session.add(new_user)
+    db.session.commit()
+    return f"user created"
+  except IntegrityError as e:
+    db.session.remove()
+    return "error creating user " + e 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -69,10 +56,24 @@ def login():
 
   user = db.session.query(User).filter_by(username=username).first()
 
-  if (user.check_pw(password)):
-    login_user(user)
-    return f"User ID {user.id} logged in"
-  return "Could not log in"
+  if (user == None):
+    return "user does not exist"
+  elif (user.check_pw(password)):
+    session["user_id"] = user.id
+    return "logged in"
+  return "password is incorrect"
+
+@app.route('/test', methods=['GET'])
+def test():
+  return session["user_id"]
+
+@app.route('/logout', methods=['GET'])
+def logout():
+
+  session.clear()
+
+  return "Logged out"
+
 
 @app.before_first_request
 def before_first_request():
