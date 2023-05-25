@@ -1,17 +1,33 @@
-from .api.stats import Stats
 from flask_socketio import SocketIO
 from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import UniqueConstraint
+from .monitor import running_container_stats
+from time import sleep
+import threading
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-monitor = Stats()
 socketio = SocketIO(app, cors_allowed_origins="*")
 db = SQLAlchemy(app)
+
+
+def thread_wrapper():
+    while True:
+        stats = {}
+        try:
+            stats = {"status": "ok", "data": running_container_stats()}
+        except:
+            stats = {"status": "error"}
+        socketio.emit("updateStats", stats)
+        sleep(1)
+
+
+th = threading.Thread(target=thread_wrapper)
+th.start()
 
 
 class User(db.Model):
@@ -53,19 +69,6 @@ def signup():
         return "error creating user " + e
 
 
-@app.route("/signup", methods=["POST"])
-def signup():
-    username = request.get_json().get("username")
-    password = request.get_json().get("password")
-
-    try:
-        new_user = User(username, password)
-        new_user.create()
-        return f"Used ID {new_user.id} created"
-    except IntegrityError:
-        return "Username is taken"
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     username = request.get_json().get("username")
@@ -98,9 +101,4 @@ def before_first_request():
     db.create_all()
 
 
-@socketio.on("connect")
-def stats():
-    print("connected")
-    while True:
-        socketio.emit("updateStats", monitor.get(), namespace="")
-        socketio.sleep(3)
+# @socket.on

@@ -1,5 +1,4 @@
-from monkey import app, monitor
+from monkey import app, socketio
 
 if __name__ == "__main__":
-    monitor.monitor()
-    app.run(debug=True, port=8080)
+    socketio.run(app, debug=True, port=8080)
