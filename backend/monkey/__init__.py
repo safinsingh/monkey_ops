@@ -1,5 +1,5 @@
 from flask_socketio import SocketIO
-from flask import Flask, request, session
+from flask import Flask, make_response, request, session
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 from sqlalchemy.exc import IntegrityError
@@ -48,11 +48,10 @@ class User(db.Model):
         else:
             return False
 
-
-# @login_manager.user_loader
-# def load_user(user_id):
-#     return db.session.query(User).get(user_id)
-
+def create_cookie():
+  resp = make_response("user session")
+  resp.set_cookie('user id', str(session["user_id"]))
+  return resp
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -63,11 +62,16 @@ def signup():
         new_user = User(username, password)
         db.session.add(new_user)
         db.session.commit()
-        return f"user created"
+        session["user_id"] = new_user.id
+        return create_cookie()
     except IntegrityError as e:
         db.session.remove()
+<<<<<<< HEAD
         return "error creating user " + e
 
+=======
+        return "error creating user"
+>>>>>>> bb0da48e5f7533c545c9b4e3f4fb7cafbe4ffa47
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -80,20 +84,20 @@ def login():
         return "user does not exist"
     elif user.check_pw(password):
         session["user_id"] = user.id
-        return "logged in"
+        return create_cookie()
     return "password is incorrect"
 
 
 @app.route("/test", methods=["GET"])
 def test():
-    return session["user_id"]
-
+    return str(session["user_id"])
 
 @app.route("/logout", methods=["GET"])
 def logout():
     session.clear()
-
-    return "Logged out"
+    resp = make_response("logged out")
+    resp.delete_cookie("user id")
+    return resp
 
 
 @app.before_first_request
