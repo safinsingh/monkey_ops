@@ -48,10 +48,12 @@ class User(db.Model):
         else:
             return False
 
+
 def create_cookie():
-  resp = make_response("user session")
-  resp.set_cookie('user id', str(session["user_id"]))
-  return resp
+    resp = make_response("user session")
+    resp.set_cookie("user id", str(session["user_id"]))
+    return resp
+
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -66,12 +68,8 @@ def signup():
         return create_cookie()
     except IntegrityError as e:
         db.session.remove()
-<<<<<<< HEAD
         return "error creating user " + e
 
-=======
-        return "error creating user"
->>>>>>> bb0da48e5f7533c545c9b4e3f4fb7cafbe4ffa47
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -91,6 +89,7 @@ def login():
 @app.route("/test", methods=["GET"])
 def test():
     return str(session["user_id"])
+
 
 @app.route("/logout", methods=["GET"])
 def logout():
