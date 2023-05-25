@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import prettyBytes from "pretty-bytes";
 
 const formatID = (id: string) => {
-	return id.slice(0, 8);
+	return id.slice(0, 12);
 };
 
 const formatPercent = (p: number) => {
@@ -39,7 +39,7 @@ function App() {
 					<thead className="text-xs text-gray-700 uppercase bg-gray-50">
 						<tr>
 							<th scope="col" className="px-6 py-3">
-								Container ID{" "}
+								Container ID
 							</th>
 							<th scope="col" className="px-6 py-3">
 								CPU%
