@@ -41,8 +41,9 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          pnpm install --prefix frontend
-          pnpm run build --prefix frontend
+          cd frontend
+          pnpm install
+          pnpm run build
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
