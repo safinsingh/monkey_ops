@@ -21,7 +21,8 @@ const Dashboard = () => {
 	}>({});
 
 	useEffect(() => {
-		const sock = io(url, { transports: ["websocket"] });
+		const PROD = window.location.href.includes("github.io");
+		const sock = io(PROD ? "http://18.118.78.77" : url, { transports: ["websocket"] });
 
 		sock.on("updateStats", (res) => {
 			setStats(res.data);
