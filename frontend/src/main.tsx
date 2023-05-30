@@ -6,22 +6,28 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Dashboard from "./components/Dashboard";
 import LandingPage from "./components/LandingPage";
 
-const router = createBrowserRouter([
+const PROD = window.location.href.includes("github.io");
+const router = createBrowserRouter(
+	[
+		{
+			path: "/",
+			element: <App />,
+			children: [
+				{
+					path: "/",
+					element: <LandingPage />,
+				},
+				{
+					path: "/dashboard",
+					element: <Dashboard />,
+				},
+			],
+		},
+	],
 	{
-		path: "/",
-		element: <App />,
-		children: [
-			{
-				path: "/",
-				element: <LandingPage />,
-			},
-			{
-				path: "/dashboard",
-				element: <Dashboard />,
-			},
-		],
-	},
-]);
+		basename: PROD ? "/monkey_ops" : "",
+	}
+);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
