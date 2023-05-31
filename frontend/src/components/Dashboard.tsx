@@ -22,8 +22,7 @@ const Dashboard = () => {
 
 	useEffect(() => {
 		const PROD = window.location.href.includes("github.io");
-		const sock = io(PROD ? "https://monkey.safin.dev/" 
-: url, { transports: ["websocket"] });
+		const sock = io(PROD ? "https://monkey.safin.dev/" : url, { transports: ["websocket"] });
 
 		sock.on("updateStats", (res) => {
 			setStats(res.data);
@@ -54,7 +53,7 @@ const Dashboard = () => {
 					</tr>
 				</thead>
 				<tbody>
-					{Object.entries(stats).map((stat) => (
+					{Object.entries(stats ?? {}).map((stat) => (
 						<tr className="bg-white border-b">
 							<td className="px-6 py-4">{formatID(stat[0])}</td>
 							<td className="px-6 py-4">{formatPercent(stat[1]["cpu_percentage"])}</td>
