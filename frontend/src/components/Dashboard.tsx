@@ -22,7 +22,8 @@ const Dashboard = () => {
 
 	useEffect(() => {
 		const PROD = window.location.href.includes("github.io");
-		const sock = io(PROD ? "https://18.118.78.77" : url, { transports: ["websocket"] });
+		const sock = io(PROD ? "https://monkey.safin.dev/" 
+: url, { transports: ["websocket"] });
 
 		sock.on("updateStats", (res) => {
 			setStats(res.data);
